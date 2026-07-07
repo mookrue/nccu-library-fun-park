@@ -295,7 +295,8 @@
       <p class="feedback-note">Enjoyed the park? <a id="feedbackLink" href="#" target="_blank" rel="noopener">Leave us feedback here 💬</a></p>
     </div>
 
-    <p class="credit">NCCU Libraries · Orientation for International Students</p>
+    <p class="credit">NCCU Libraries · Orientation for International Students<br>
+    <button id="resetBtn" style="margin-top:6px;font-size:.78rem;color:#A79FB0;text-decoration:underline;font-family:inherit;">Reset my stickers & start over</button></p>
   </div>
 
   <!-- ==================== ZONE SCREEN ==================== -->
@@ -653,6 +654,23 @@ const ART = {
 const state = { earned:{} };
 const $ = s => document.querySelector(s);
 
+/* ---- progress saving (safe: falls back to in-memory if storage unavailable) ---- */
+const STORAGE_KEY = "nccu-funpark-progress";
+function saveProgress(){
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state.earned)); }catch(e){}
+}
+function loadProgress(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw) state.earned = JSON.parse(raw) || {};
+  }catch(e){ state.earned = {}; }
+}
+function resetProgress(){
+  try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
+  location.reload();
+}
+loadProgress();
+
 document.getElementById("feedbackLink").href = FEEDBACK_FORM_URL;
 
 /* ---- build map cards ---- */
@@ -672,6 +690,21 @@ ZONES.forEach((z,i)=>{
   card.addEventListener("click",()=>openZone(i));
   mapList.appendChild(card);
 });
+
+/* ---- restore saved progress onto the UI ---- */
+(function restoreUI(){
+  let count = 0;
+  ZONES.forEach(z=>{
+    if(state.earned[z.id]){
+      count++;
+      const slot = document.querySelector(`.sticker-slot[data-slot="${z.id}"]`);
+      if(slot) slot.classList.add("earned");
+      const card = document.getElementById("card-"+z.id);
+      if(card) card.classList.add("done");
+    }
+  });
+  if(count===ZONES.length) $("#downloadBtn").disabled = false;
+})();
 
 /* ---- zone rendering ---- */
 function openZone(i){
@@ -751,11 +784,15 @@ function backToMap(){
 }
 $("#backBtn").addEventListener("click",backToMap);
 $("#backBtn2").addEventListener("click",backToMap);
+$("#resetBtn").addEventListener("click",()=>{
+  if(confirm("Remove all your stickers and start the park adventure again?")) resetProgress();
+});
 
 /* ---- stickers ---- */
 function earnSticker(z){
   if(state.earned[z.id]) return;
   state.earned[z.id] = true;
+  saveProgress();
   const slot = document.querySelector(`.sticker-slot[data-slot="${z.id}"]`);
   slot.classList.add("earned","pop");
   document.getElementById("card-"+z.id).classList.add("done");
