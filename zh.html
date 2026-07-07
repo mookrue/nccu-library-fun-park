@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>政大圖書館遊樂園</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --sky:#FBE2E9;
+    --sky-deep:#F6C3D0;
+    --sun:#FFD650;
+    --sun-deep:#FFC22E;
+    --cream:#FFF9EC;
+    --coral:#F27992;
+    --coral-deep:#E05C7A;
+    --mint:#BDE8C9;
+    --ink:#4A4453;
+    --ink-soft:#7A7385;
+    --line:#8A6F5C;
+    --radius:22px;
+    --shadow:0 4px 0 rgba(122,111,92,.18);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+  html{scroll-behavior:smooth;}
+  body{
+    font-family:'Nunito','Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif;
+    background:var(--sky);
+    color:var(--ink);
+    min-height:100vh;
+    line-height:1.65;
+  }
+  h1,h2,h3,.font-display{font-family:'Baloo 2','Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif;}
+  a{color:inherit;}
+  button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit;}
+  .app{max-width:560px;margin:0 auto;padding:0 16px 48px;position:relative;}
+
+  /* ---------- decorative sky ---------- */
+  .sky-deco{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:0;}
+  .cloud{position:absolute;opacity:.85;}
+  @media (prefers-reduced-motion: no-preference){
+    .cloud{animation:drift 46s linear infinite;}
+    .cloud.c2{animation-duration:64s;animation-delay:-20s;}
+    .cloud.c3{animation-duration:80s;animation-delay:-45s;}
+    @keyframes drift{from{transform:translateX(-160px);}to{transform:translateX(110vw);}}
+  }
+  .screen{position:relative;z-index:1;}
+
+  /* ---------- language toggle ---------- */
+  .lang-toggle{
+    position:absolute;top:14px;right:0;z-index:10;
+    background:var(--cream);border:2.5px solid var(--line);border-radius:999px;
+    font-family:'Baloo 2',sans-serif;font-weight:800;font-size:.85rem;
+    padding:6px 14px;box-shadow:var(--shadow);text-decoration:none;
+  }
+
+  /* ---------- header ---------- */
+  header.park-header{padding:26px 4px 8px;text-align:center;}
+  .park-arch{width:min(100%,420px);margin:0 auto;display:block;}
+  .park-sub{color:var(--ink-soft);font-size:.95rem;margin-top:2px;}
+  .park-sub b{color:var(--ink);}
+
+  /* ---------- sticker bar ---------- */
+  .sticker-bar{
+    position:sticky;top:10px;z-index:20;
+    background:var(--cream);
+    border:3px solid var(--line);
+    border-radius:999px;
+    box-shadow:var(--shadow);
+    display:flex;align-items:center;gap:8px;
+    padding:8px 14px;margin:14px auto 6px;
+    width:fit-content;max-width:100%;
+  }
+  .sticker-bar .label{font-weight:900;font-size:.82rem;letter-spacing:.08em;color:var(--ink-soft);}
+  .sticker-slot{
+    width:34px;height:34px;border-radius:50%;
+    border:2.5px dashed #C9BBA8;background:#FFFDF6;
+    display:flex;align-items:center;justify-content:center;
+    font-size:1.05rem;transition:transform .25s;
+  }
+  .sticker-slot.earned{border:2.5px solid var(--coral);background:#FDE8EE;}
+  @media (prefers-reduced-motion: no-preference){
+    .sticker-slot.pop{animation:pop .5s cubic-bezier(.34,1.56,.64,1);}
+    @keyframes pop{0%{transform:scale(.2) rotate(-25deg);}100%{transform:scale(1) rotate(0);}}
+  }
+
+  /* ---------- attraction cards (map) ---------- */
+  .map-list{display:flex;flex-direction:column;gap:18px;margin-top:16px;}
+  .attraction{
+    background:var(--cream);
+    border:3px solid var(--line);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    overflow:hidden;text-align:left;width:100%;
+    transition:transform .15s;
+    position:relative;
+  }
+  .attraction:active{transform:scale(.985);}
+  .attraction .art{background:linear-gradient(180deg,#FDF0F4 0%,#FFF6D9 100%);display:block;width:100%;}
+  .attraction .art svg{display:block;width:100%;height:auto;}
+  .attraction .meta{padding:14px 18px 16px;display:flex;align-items:center;gap:12px;}
+  .attraction .meta .txt{flex:1;}
+  .attraction h2{font-size:1.25rem;line-height:1.3;font-weight:900;}
+  .attraction .tag{color:var(--ink-soft);font-size:.9rem;}
+  .attraction .go{
+    background:var(--sun);border:2.5px solid var(--line);border-radius:999px;
+    font-weight:900;font-size:.85rem;padding:8px 14px;white-space:nowrap;
+    box-shadow:0 3px 0 rgba(122,111,92,.25);
+  }
+  .attraction .stamp-mark{
+    position:absolute;top:10px;right:12px;
+    background:var(--coral);color:#fff;border:2.5px solid #fff;
+    border-radius:999px;font-size:.75rem;font-weight:900;
+    padding:4px 10px;transform:rotate(6deg);
+    box-shadow:0 2px 0 rgba(122,111,92,.3);
+    display:none;
+  }
+  .attraction.done .stamp-mark{display:block;}
+
+  /* ---------- prize / footer card ---------- */
+  .prize-card{
+    margin-top:26px;background:var(--cream);
+    border:3px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:22px 20px;text-align:center;
+  }
+  .prize-card h2{font-size:1.3rem;margin-bottom:6px;font-weight:900;}
+  .prize-card p{color:var(--ink-soft);font-size:.95rem;}
+  .btn-big{
+    display:inline-block;margin-top:14px;
+    background:var(--coral);color:#fff;
+    border:3px solid var(--line);border-radius:999px;
+    font-weight:900;font-size:1.05rem;
+    padding:12px 26px;box-shadow:0 4px 0 rgba(122,111,92,.3);
+    transition:transform .15s,opacity .2s;text-decoration:none;
+  }
+  .btn-big:active{transform:translateY(2px);}
+  .btn-big[disabled]{opacity:.45;cursor:not-allowed;}
+  .btn-big.alt{background:var(--sun);color:var(--ink);}
+  .feedback-note{margin-top:16px;font-size:.9rem;color:var(--ink-soft);}
+  .feedback-note a{font-weight:900;color:var(--coral-deep);}
+
+  /* ---------- zone screen ---------- */
+  .zone-screen{display:none;}
+  .zone-screen.active{display:block;}
+  .map-screen.hidden{display:none;}
+  .zone-top{display:flex;align-items:center;gap:10px;padding:18px 0 8px;}
+  .btn-back{
+    background:var(--cream);border:3px solid var(--line);border-radius:999px;
+    box-shadow:var(--shadow);font-weight:900;font-size:.9rem;
+    padding:8px 16px;
+  }
+  .zone-hero{
+    background:var(--cream);border:3px solid var(--line);
+    border-radius:var(--radius);box-shadow:var(--shadow);
+    overflow:hidden;margin-top:8px;
+  }
+  .zone-hero .art{background:linear-gradient(180deg,#FDF0F4 0%,#FFF6D9 100%);}
+  .zone-hero .art svg{display:block;width:100%;height:auto;}
+  .zone-hero .intro{padding:16px 18px 18px;}
+  .zone-hero h2{font-size:1.35rem;font-weight:900;}
+  .zone-hero .intro p{margin-top:6px;font-size:.95rem;}
+
+  /* ---------- spot chips ---------- */
+  .spots{display:flex;flex-direction:column;gap:12px;margin-top:16px;}
+  .spot{
+    background:var(--cream);border:3px solid var(--line);
+    border-radius:18px;box-shadow:var(--shadow);overflow:hidden;
+  }
+  .spot-head{
+    width:100%;display:flex;align-items:center;gap:12px;
+    padding:12px 14px;text-align:left;
+  }
+  .spot-head .emoji{
+    width:42px;height:42px;flex:0 0 42px;border-radius:50%;
+    background:var(--sky-deep);border:2.5px solid var(--line);
+    display:flex;align-items:center;justify-content:center;font-size:1.25rem;
+  }
+  .spot-head .who{flex:1;}
+  .spot-head .who b{font-size:1.02rem;display:block;line-height:1.35;font-weight:900;}
+  .spot-head .who span{font-size:.82rem;color:var(--ink-soft);}
+  .spot-head .chev{font-size:1.1rem;color:var(--ink-soft);transition:transform .25s;}
+  .spot.open .chev{transform:rotate(90deg);}
+  .spot-body{display:none;padding:0 16px 14px;font-size:.94rem;}
+  .spot.open .spot-body{display:block;}
+  .spot-body p+p{margin-top:8px;}
+  .spot-body .hint{background:#FFF3C4;border-radius:12px;padding:10px 12px;margin-top:8px;font-size:.9rem;}
+  .link-out{
+    display:inline-block;margin-top:10px;margin-right:8px;
+    background:var(--sun);border:2.5px solid var(--line);border-radius:999px;
+    font-weight:900;font-size:.85rem;padding:7px 14px;text-decoration:none;
+    box-shadow:0 3px 0 rgba(122,111,92,.25);
+  }
+  .link-out.blue{background:var(--sky-deep);}
+
+  /* ---------- carousel horses grid ---------- */
+  .horse-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;}
+  .horse{
+    background:#FFFDF6;border:2.5px solid var(--line);border-radius:16px;
+    padding:10px 12px;text-align:left;box-shadow:0 3px 0 rgba(122,111,92,.15);
+  }
+  .horse .h-name{font-weight:900;font-size:.92rem;display:flex;gap:6px;align-items:center;}
+  .horse .h-desc{font-size:.8rem;color:var(--ink-soft);margin-top:3px;line-height:1.5;}
+  .horse a{font-size:.8rem;font-weight:900;color:var(--coral-deep);}
+
+  /* ---------- quiz ---------- */
+  .quiz{
+    margin-top:18px;background:var(--sun);
+    border:3px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:18px;
+  }
+  .quiz .q-label{
+    display:inline-block;background:var(--ink);color:var(--sun);
+    font-weight:900;font-size:.78rem;
+    border-radius:999px;padding:4px 12px;letter-spacing:.1em;
+  }
+  .quiz h3{margin-top:10px;font-size:1.08rem;line-height:1.5;font-weight:900;}
+  .quiz .opts{display:flex;flex-direction:column;gap:9px;margin-top:12px;}
+  .quiz .opt{
+    background:var(--cream);border:2.5px solid var(--line);border-radius:14px;
+    padding:11px 14px;text-align:left;font-weight:700;font-size:.93rem;
+    box-shadow:0 3px 0 rgba(122,111,92,.2);transition:transform .12s;
+  }
+  .quiz .opt:active{transform:translateY(2px);}
+  .quiz .opt.correct{background:var(--mint);border-color:#4E8B60;}
+  .quiz .opt.wrong{background:#FFE3DC;border-color:var(--coral-deep);}
+  @media (prefers-reduced-motion: no-preference){
+    .quiz .opt.wrong{animation:shake .4s;}
+    @keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-5px);}75%{transform:translateX(5px);}}
+  }
+  .quiz .result{margin-top:12px;font-weight:900;display:none;}
+  .quiz .result.show{display:block;}
+  .quiz.solved .opts .opt{pointer-events:none;opacity:.75;}
+  .quiz.solved .opts .opt.correct{opacity:1;}
+
+  .zone-nav{display:flex;justify-content:center;margin:22px 0 10px;}
+
+  /* ---------- celebration overlay ---------- */
+  .overlay{
+    position:fixed;inset:0;background:rgba(74,68,83,.45);
+    display:none;align-items:center;justify-content:center;z-index:50;padding:20px;
+  }
+  .overlay.show{display:flex;}
+  .overlay .card{
+    background:var(--cream);border:3px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);max-width:380px;width:100%;
+    padding:26px 22px;text-align:center;
+  }
+  .overlay .big-emoji{font-size:3rem;}
+  .overlay h2{font-size:1.4rem;margin-top:6px;font-weight:900;}
+  .overlay p{color:var(--ink-soft);font-size:.95rem;margin-top:6px;}
+  canvas#ticketCanvas{display:none;}
+
+  .credit{margin-top:26px;text-align:center;font-size:.8rem;color:var(--ink-soft);}
+</style>
+</head>
+<body>
+
+<div class="sky-deco" aria-hidden="true">
+  <svg class="cloud c1" style="top:8%;left:-160px" width="120" height="52" viewBox="0 0 120 52"><g fill="#fff"><ellipse cx="38" cy="34" rx="34" ry="17"/><ellipse cx="72" cy="26" rx="28" ry="18"/><ellipse cx="96" cy="36" rx="22" ry="13"/></g></svg>
+  <svg class="cloud c2" style="top:34%;left:-160px" width="96" height="44" viewBox="0 0 120 52"><g fill="#fff"><ellipse cx="38" cy="34" rx="34" ry="17"/><ellipse cx="72" cy="26" rx="28" ry="18"/><ellipse cx="96" cy="36" rx="22" ry="13"/></g></svg>
+  <svg class="cloud c3" style="top:66%;left:-160px" width="140" height="60" viewBox="0 0 120 52"><g fill="#fff" opacity=".8"><ellipse cx="38" cy="34" rx="34" ry="17"/><ellipse cx="72" cy="26" rx="28" ry="18"/><ellipse cx="96" cy="36" rx="22" ry="13"/></g></svg>
+</div>
+
+<div class="app">
+  <a class="lang-toggle" href="https://mookrue.github.io/nccu-library-fun-park/">EN</a>
+
+  <!-- ==================== MAP SCREEN ==================== -->
+  <div class="screen map-screen" id="mapScreen">
+    <header class="park-header">
+      <svg class="park-arch" viewBox="0 0 420 150" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="政大圖書館遊樂園">
+        <path d="M30 140 L30 70 Q30 26 74 22 Q210 4 346 22 Q390 26 390 70 L390 140" fill="#FFD650" stroke="#8A6F5C" stroke-width="5" stroke-linejoin="round"/>
+        <path d="M30 140 L30 70 Q30 26 74 22 Q210 4 346 22 Q390 26 390 70 L390 140" fill="none" stroke="#fff" stroke-width="2" stroke-dasharray="1 14" stroke-linecap="round" transform="translate(0,10)"/>
+        <circle cx="66" cy="46" r="7" fill="#F27992" stroke="#8A6F5C" stroke-width="3"/>
+        <circle cx="354" cy="46" r="7" fill="#F27992" stroke="#8A6F5C" stroke-width="3"/>
+        <circle cx="120" cy="30" r="6" fill="#F6C3D0" stroke="#8A6F5C" stroke-width="3"/>
+        <circle cx="300" cy="30" r="6" fill="#F6C3D0" stroke="#8A6F5C" stroke-width="3"/>
+        <circle cx="210" cy="22" r="7" fill="#BDE8C9" stroke="#8A6F5C" stroke-width="3"/>
+        <rect x="24" y="60" width="12" height="80" rx="6" fill="#F27992" stroke="#8A6F5C" stroke-width="4"/>
+        <rect x="384" y="60" width="12" height="80" rx="6" fill="#F27992" stroke="#8A6F5C" stroke-width="4"/>
+        <text x="210" y="76" text-anchor="middle" font-family="'Noto Sans TC','PingFang TC',sans-serif" font-weight="900" font-size="32" fill="#4A4453">政大圖書館</text>
+        <text x="210" y="112" text-anchor="middle" font-family="'Noto Sans TC','PingFang TC',sans-serif" font-weight="900" font-size="27" fill="#E05C7A">夢幻遊樂園</text>
+      </svg>
+      <p class="park-sub">歡迎新政大人!🎈 走訪 <b>5 個遊樂設施</b>,在每一關回答一個小問題,集滿貼紙就能獲得專屬紀念門票!</p>
+    </header>
+
+    <div class="sticker-bar" id="stickerBar" aria-label="集章進度">
+      <span class="label">集章</span>
+      <span class="sticker-slot" data-slot="gate">🎟️</span>
+      <span class="sticker-slot" data-slot="carousel">🎠</span>
+      <span class="sticker-slot" data-slot="coaster">🎢</span>
+      <span class="sticker-slot" data-slot="ferris">🎡</span>
+      <span class="sticker-slot" data-slot="shuttle">🚌</span>
+    </div>
+
+    <div class="map-list" id="mapList"><!-- attraction cards injected by JS --></div>
+
+    <div class="prize-card">
+      <h2>🎁 紀念門票</h2>
+      <p>收集全部 5 張貼紙,就能下載你的遊樂園紀念門票——證明你是政大圖書館的官方探險家!</p>
+      <button class="btn-big" id="downloadBtn" disabled>下載我的門票</button>
+      <p class="feedback-note">玩得開心嗎?<a id="feedbackLink" href="#" target="_blank" rel="noopener">歡迎留下你的回饋 💬</a></p>
+    </div>
+
+    <p class="credit">政大圖書館 · 新生探索遊戲<br>
+    <button id="resetBtn" style="margin-top:6px;font-size:.78rem;color:#A79FB0;text-decoration:underline;font-family:inherit;">清除貼紙,重新開始</button></p>
+  </div>
+
+  <!-- ==================== ZONE SCREEN ==================== -->
+  <div class="screen zone-screen" id="zoneScreen">
+    <div class="zone-top">
+      <button class="btn-back" id="backBtn">← 回園區地圖</button>
+    </div>
+    <div id="zoneContent"><!-- injected by JS --></div>
+    <div class="zone-nav">
+      <button class="btn-big alt" id="backBtn2">回到園區地圖</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- ==================== CELEBRATION OVERLAY ==================== -->
+<div class="overlay" id="overlay">
+  <div class="card">
+    <div class="big-emoji" id="ovEmoji">🎉</div>
+    <h2 id="ovTitle">獲得貼紙!</h2>
+    <p id="ovText">太棒了!</p>
+    <button class="btn-big" id="ovBtn">耶!</button>
+  </div>
+</div>
+
+<!-- ==================== TICKET OVERLAY ==================== -->
+<div class="overlay" id="ticketOverlay">
+  <div class="card">
+    <h2>🎫 你的紀念門票!</h2>
+    <img id="ticketImg" alt="政大圖書館遊樂園紀念門票" style="width:100%;border-radius:14px;border:3px solid var(--line);margin-top:12px;">
+    <p style="margin-top:10px;">點下方按鈕儲存——手機也可以直接長按圖片存下來。</p>
+    <a class="btn-big" id="ticketSave" href="#" download="nccu-library-fun-park-ticket-zh.png">儲存圖片</a>
+    <br>
+    <button class="btn-big alt" id="ticketClose" style="margin-top:10px;">關閉</button>
+  </div>
+</div>
+
+<canvas id="ticketCanvas" width="1200" height="680"></canvas>
+
+<script>
+/* =====================================================================
+   ✏️  編輯區 — 所有遊戲內容都在這裡。
+   想修改連結、題目或文字,只需要編輯這一區。
+   ===================================================================== */
+
+const FEEDBACK_FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSeCXyhftEsOjVtf_kjgmN8bM2CI5Jb5AcBfv9PaCD60VXK7Rg/viewform?usp=header";
+
+const LINKS = {
+  statement:  "https://sub.lib.nccu.edu.tw/sign/index.php",
+  ebooks:     "https://nccu.primo.exlibrisgroup.com/discovery/collectionDiscovery?vid=886NCCU_INST:886NCCU_INST&collectionId=81219689630005721&lang=zh-tw",
+  news:       "https://nccu.primo.exlibrisgroup.com/discovery/collectionDiscovery?vid=886NCCU_INST:886NCCU_INST&collectionId=81220598860005721&lang=zh-tw",
+  elearning:  "https://lib.video.nccu.edu.tw/p/online",
+  aiguide:    "https://sites.google.com/view/ncculibgenai/",
+  vpn:        "https://net.nccu.edu.tw/sslvpn/",
+  quickstart: "https://sites.google.com/view/nccupostgraduate/basic",
+  turnitin:   "https://lib.video.nccu.edu.tw/p/turnitin-student1",
+  thesis:     "https://thesis.lib.nccu.edu.tw/",
+  booking:    "https://rbs.lib.nccu.edu.tw/nccuroom/conew/co_enter",
+  spacesMain: "https://www.lib.nccu.edu.tw/p/404-1000-307.php?Lang=zh-tw",
+  spacesDH:   "https://dhl.lib.nccu.edu.tw/p/404-1001-554.php",
+  borrowing:  "https://www.lib.nccu.edu.tw/p/404-1000-277.php?Lang=zh-tw",
+  ust:        "https://www.lib.nccu.edu.tw/p/404-1000-280.php?Lang=zh-tw",
+  specialCol: "https://da.lib.nccu.edu.tw/",
+  archives:   "https://archive.lib.nccu.edu.tw/?Lang=zh-tw",
+  branches:   "https://www.lib.nccu.edu.tw/p/404-1000-321.php?Lang=zh-tw",
+};
+
+const ZONES = [
+  /* ------------------- 1. 遊樂園門口 ------------------- */
+  {
+    id:"gate", emoji:"🎟️", name:"遊樂園門口",
+    tag:"入場第一步:先拿到圖書館門票!",
+    intro:"每個遊樂園都需要門票——圖書館也是!兩位親切的售票員在這裡等你。",
+    art:"gate",
+    spots:[
+      { emoji:"🧑‍💼", who:"售票員 桃桃", role:"啟用讀者權限",
+        body:`<p>使用圖書館服務前,請先到圖書館網站完成<b>讀者權限啟用</b>,只要一分鐘就好!</p>`,
+        links:[{label:"✍️ 前往讀者權限啟用", url:LINKS.statement}] },
+      { emoji:"👩‍💼", who:"售票員 小花", role:"你的帳號密碼",
+        body:`<p>啟用之後,登入讀者帳號就可以<b>預約圖書</b>、<b>使用電子資源</b>囉!</p>
+              <div class="hint">🔑 <b>帳號</b> = 學號<br>🔑 <b>密碼</b> = 含英文字母之身分證字號前 6 碼(如 A12345)</div>` },
+    ],
+    quiz:{
+      q:"小美的身分證字號是 A223456789,她的圖書館預設密碼是?",
+      opts:["A22345","223456","A2234567","nccu22345"],
+      correct:0,
+      praise:"答對了!密碼就是含英文字母的身分證字號前 6 碼。歡迎入場!🎟️"
+    }
+  },
+
+  /* ------------------- 2. 旋轉木馬 ------------------- */
+  {
+    id:"carousel", emoji:"🎠", name:"旋轉木馬",
+    tag:"乘著木馬逛電子資源!",
+    intro:"每匹木馬都載著不同的電子資源:可信的期刊全文、掌握社會脈動的新聞、方便線上借閱的電子書——許多資源還有 AI 功能!",
+    art:"carousel",
+    spots:[
+      { emoji:"🎠", who:"旋轉木馬群", role:"挑一匹上馬——12 種資源",
+        body:`<div class="horse-grid">
+          <div class="horse"><div class="h-name">🐴 Scopus</div><div class="h-desc">跨領域找可信賴的期刊文獻</div></div>
+          <div class="horse"><div class="h-name">🐴 Web of Science (SSCI)</div><div class="h-desc">社會科學重要期刊索引</div></div>
+          <div class="horse"><div class="h-name">🐴 JCR</div><div class="h-desc">查詢期刊排名與影響係數</div></div>
+          <div class="horse"><div class="h-name">🐴 JSTOR</div><div class="h-desc">經典學術期刊與回溯典藏</div></div>
+          <div class="horse"><div class="h-name">🐴 Statista</div><div class="h-desc">寫報告必備的統計與市場數據</div></div>
+          <div class="horse"><div class="h-name">🐴 WARC</div><div class="h-desc">行銷與廣告案例研究</div></div>
+          <div class="horse"><div class="h-name">🐴 ProQuest One</div><div class="h-desc">一站式學術資源查詢</div></div>
+          <div class="horse"><div class="h-name">🐴 EBSCOhost</div><div class="h-desc">跨學科全文資料庫</div></div>
+          <div class="horse"><div class="h-name">🐴 華藝線上圖書館</div><div class="h-desc">台灣中文期刊與學位論文</div></div>
+          <div class="horse"><div class="h-name">🐴 CNKI 中國知網</div><div class="h-desc">中國大陸期刊與學位論文</div></div>
+          <div class="horse"><div class="h-name">🦄 電子書</div><div class="h-desc">上千本書線上借—<a href="${LINKS.ebooks}" target="_blank" rel="noopener">上馬 →</a></div></div>
+          <div class="horse"><div class="h-name">🦄 新聞</div><div class="h-desc">掌握社會脈動—<a href="${LINKS.news}" target="_blank" rel="noopener">上馬 →</a></div></div>
+        </div>` },
+      { emoji:"💡", who:"發亮的屋頂", role:"線上教學與 AI 指引",
+        body:`<p>想看更完整的使用教學?屋頂的燈光指向<b>圖書館 e 學習網</b>;想善用資料庫的 AI 功能,也有專門的 <b>AI 使用指引</b>!</p>`,
+        links:[
+          {label:"💡 圖書館 e 學習網", url:LINKS.elearning},
+          {label:"🤖 AI 使用指引", url:LINKS.aiguide, blue:true}
+        ] },
+      { emoji:"👮", who:"門口管理員 熊熊", role:"在校外也想騎木馬?",
+        body:`<p>在<b>校外</b>(宿舍、咖啡店……)使用電子資源時,記得<b>從圖書館網頁登入帳密</b>,或先設定好<b>政大 VPN</b>——不然木馬可是不會動的喔!</p>`,
+        links:[{label:"🔐 設定政大 VPN", url:LINKS.vpn}] },
+    ],
+    quiz:{
+      q:"你人在校外,資料庫打不開,該怎麼辦?",
+      opts:[
+        "從圖書館網頁登入,或使用政大 VPN",
+        "自己花錢訂閱資料庫",
+        "等到半夜再試一次",
+        "寫信給資料庫公司"
+      ],
+      correct:0,
+      praise:"就是這招!圖書館登入或 VPN,校外照樣暢行無阻。🎠"
+    }
+  },
+
+  /* ------------------- 3. 雲霄飛車 ------------------- */
+  {
+    id:"coaster", emoji:"🎢", name:"雲霄飛車",
+    tag:"論文寫作的驚險之旅",
+    intro:"研究生請繫好安全帶!論文寫作的路上高低起伏——但圖書館為每個彎道都準備了工具,相信你一定能逐一克服!",
+    art:"coaster",
+    spots:[
+      { emoji:"🗺️", who:"門口管理員 托托", role:"你的乘車地圖",
+        body:`<p>第一次搭這班車?先拿好<b>圖書館錦囊妙計</b>,論文路上的各種資源一次看懂。</p>`,
+        links:[{label:"🗺️ 打開圖書館錦囊妙計", url:LINKS.quickstart}] },
+      { emoji:"🚃", who:"第一節車廂 · EndNote", role:"書目管理好幫手",
+        body:`<p><b>EndNote</b> 幫你管理參考書目、快速產生正確的引文格式——未來的你會感謝現在的你!</p>`,
+        links:[{label:"📚 錦囊妙計看更多", url:LINKS.quickstart}] },
+      { emoji:"🚃", who:"第二節車廂 · Writefull", role:"英文編修小精靈",
+        body:`<p><b>Writefull</b> 幫你潤飾學術英文——文法、用字、句型建議,邊寫邊修。</p>`,
+        links:[{label:"✏️ 錦囊妙計看更多", url:LINKS.quickstart}] },
+      { emoji:"🚃", who:"第三節車廂 · Turnitin", role:"原創性比對",
+        body:`<p>畢業前,論文要先通過 <b>Turnitin</b> 原創性比對。</p>`,
+        links:[{label:"🔍 Turnitin 使用指引", url:LINKS.turnitin}] },
+      { emoji:"🏁", who:"最後一節車廂 · 論文上傳", role:"終點衝刺!",
+        body:`<p>壓軸關卡:把完成的論文上傳到<b>政大論文系統</b>。然後就可以舉起雙手歡呼——你做到了!🙌</p>`,
+        links:[{label:"🎓 論文上傳系統", url:LINKS.thesis}] },
+    ],
+    quiz:{
+      q:"畢業前,論文的原創性比對要用哪個工具?",
+      opts:["Turnitin","EndNote","Writefull","Statista"],
+      correct:0,
+      praise:"答對了!畢業前的原創性比對交給 Turnitin。🎢"
+    }
+  },
+
+  /* ------------------- 4. 摩天輪 ------------------- */
+  {
+    id:"ferris", emoji:"🎡", name:"摩天輪",
+    tag:"好多空間任你使用!",
+    intro:"你知道政大有很多圖書館空間可以使用嗎?摩天輪的每個包廂都是一種空間——上來繞一圈看看吧!",
+    art:"ferris",
+    spots:[
+      { emoji:"🛎️", who:"服務生 莉莉", role:"包廂怎麼預約?",
+        body:`<p>討論室等可預約空間,都是透過<b>線上空間預約系統</b>登記——先預約,再享受!</p>
+              <p>兩館的完整空間介紹也在這裡:</p>`,
+        links:[
+          {label:"📅 空間預約系統", url:LINKS.booking},
+          {label:"🏛️ 達賢圖書館空間", url:LINKS.spacesDH, blue:true},
+          {label:"🏛️ 中正圖書館空間", url:LINKS.spacesMain, blue:true}
+        ] },
+      { emoji:"📖", who:"1 號包廂 · 自習室", role:"安靜專注時光",
+        body:`<p>安靜的個人自習空間,考前衝刺、趕稿深度專注最適合。</p>` },
+      { emoji:"🗣️", who:"2 號包廂 · 討論室", role:"小組作戰基地",
+        body:`<p>可預約的討論空間,小組報告、讀書會盡情討論不怕吵到別人!</p>` },
+      { emoji:"🛠️", who:"3 號包廂 · 創客空間", role:"動手做起來",
+        body:`<p>動手實作的創作空間,把你的點子做出來。</p>` },
+      { emoji:"🎬", who:"4 號包廂 · 影音欣賞區", role:"看片聽音樂",
+        body:`<p>舒適的視聽空間,欣賞館藏影片與影音資源。</p>` },
+      { emoji:"🎙️", who:"5 號包廂 · 影音製播室", role:"錄音錄影",
+        body:`<p>錄製與製作影音作品的專業空間,你的作品都能在這裡誕生。</p>` },
+    ],
+    quiz:{
+      q:"想預約討論室進行小組報告,該去哪裡?",
+      opts:[
+        "線上空間預約系統",
+        "直接走進去佔位子",
+        "寄信給教授幫忙訂",
+        "在社群上發文許願"
+      ],
+      correct:0,
+      praise:"沒錯!先線上預約,再開心入座。🎡"
+    }
+  },
+
+  /* ------------------- 5. 遊園車 ------------------- */
+  {
+    id:"shuttle", emoji:"🚌", name:"遊園車",
+    tag:"你的借書證,比你想的更萬能",
+    intro:"政大借書證能借的不只政大的書——還能借台聯大圖書館(陽明交大、清大、中央)的書籍!",
+    art:"shuttle",
+    spots:[
+      { emoji:"👮", who:"門口管理員 波可", role:"書都住在哪裡?",
+        body:`<p>📍 <b>中文圖書</b>在<b>中正圖書館(總圖)</b>最多。</p>
+              <p>📍 <b>影片與影音資源</b>在<b>達賢圖書館</b>。</p>
+              <p>⚠️ 請注意:有些書籍僅供館內閱覽,<b>不能外借</b>喔!</p>`,
+        links:[
+          {label:"📖 借閱規定", url:LINKS.borrowing},
+          {label:"🏛️ 認識各館", url:LINKS.branches, blue:true}
+        ] },
+      { emoji:"🧢", who:"遊園車司機 波波", role:"台聯大路線",
+        body:`<p>這班車開得可遠了!憑政大借書證,你可以借閱<b>台灣聯合大學系統</b>的館藏:<b>陽明交大、清大、中央大學</b>。上車前先看看相關規定吧。</p>`,
+        links:[{label:"🚌 台聯大借閱規定", url:LINKS.ust}] },
+      { emoji:"🧳", who:"乘客 悠悠", role:"隱藏版景點",
+        body:`<p>悄悄告訴你——政大還有<b>特藏中心</b>和<b>校史檔案</b>!喜歡珍稀文獻和校園歷史的話,一定要來挖寶。</p>`,
+        links:[
+          {label:"💎 特藏中心", url:LINKS.specialCol},
+          {label:"🏫 校史檔案", url:LINKS.archives, blue:true}
+        ] },
+    ],
+    quiz:{
+      q:"政大借書證可以借陽明交大、清大、中央大學的書嗎?",
+      opts:[
+        "可以——透過台聯大圖書館合作!",
+        "不行,只能借政大的書",
+        "可以,但每次都要另外付費",
+        "只有暑假期間可以"
+      ],
+      correct:0,
+      praise:"答對了!一證在手,四校館藏任你借。🚌"
+    }
+  },
+];
+
+/* =====================================================================
+   🎨  SVG 插圖(各設施的繪本風場景)
+   ===================================================================== */
+const ART = {
+  gate:`
+  <svg viewBox="0 0 400 190" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <ellipse cx="200" cy="182" rx="180" ry="10" fill="#BDE8C9"/>
+    <rect x="70" y="70" width="20" height="105" rx="9" fill="#F27992" stroke="#8A6F5C" stroke-width="5"/>
+    <rect x="310" y="70" width="20" height="105" rx="9" fill="#F27992" stroke="#8A6F5C" stroke-width="5"/>
+    <path d="M60 92 Q60 34 200 34 Q340 34 340 92" fill="#FFD650" stroke="#8A6F5C" stroke-width="5"/>
+    <text x="200" y="72" text-anchor="middle" font-family="'Noto Sans TC',sans-serif" font-weight="900" font-size="19" fill="#4A4453">歡迎光臨!</text>
+    <circle cx="100" cy="48" r="6" fill="#F6C3D0" stroke="#8A6F5C" stroke-width="3.5"/>
+    <circle cx="300" cy="48" r="6" fill="#F6C3D0" stroke="#8A6F5C" stroke-width="3.5"/>
+    <circle cx="200" cy="36" r="7" fill="#F27992" stroke="#8A6F5C" stroke-width="3.5"/>
+    <rect x="120" y="112" width="70" height="63" rx="10" fill="#FFF9EC" stroke="#8A6F5C" stroke-width="5"/>
+    <rect x="210" y="112" width="70" height="63" rx="10" fill="#FFF9EC" stroke="#8A6F5C" stroke-width="5"/>
+    <circle cx="155" cy="132" r="12" fill="#FFDFB0" stroke="#8A6F5C" stroke-width="4"/>
+    <path d="M150 131 q2 3 5 0 M158 131 q2 3 5 0" stroke="#4A4453" stroke-width="2.4" fill="none" stroke-linecap="round" transform="translate(-4,-2)"/>
+    <path d="M150 137 q5 4 10 0" stroke="#4A4453" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+    <rect x="141" y="146" width="28" height="22" rx="8" fill="#F6C3D0" stroke="#8A6F5C" stroke-width="4"/>
+    <circle cx="245" cy="132" r="12" fill="#FFDFB0" stroke="#8A6F5C" stroke-width="4"/>
+    <path d="M240 131 q2 3 5 0 M248 131 q2 3 5 0" stroke="#4A4453" stroke-width="2.4" fill="none" stroke-linecap="round" transform="translate(-4,-2)"/>
+    <path d="M240 137 q5 4 10 0" stroke="#4A4453" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+    <rect x="231" y="146" width="28" height="22" rx="8" fill="#F27992" stroke="#8A6F5C" stroke-width="4"/>
+    <rect x="150" y="88" width="100" height="26" rx="12" fill="#fff" stroke="#8A6F5C" stroke-width="4"/>
+    <text x="200" y="107" text-anchor="middle" font-family="'Noto Sans TC',sans-serif" font-weight="900" font-size="14" fill="#E05C7A">售票處</text>
+  </svg>`,
+  carousel:`
+  <svg viewBox="0 0 400 190" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <ellipse cx="200" cy="182" rx="180" ry="10" fill="#BDE8C9"/>
+    <path d="M110 78 L200 22 L290 78 Z" fill="#F27992" stroke="#8A6F5C" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M110 78 Q200 96 290 78" fill="#FFD650" stroke="#8A6F5C" stroke-width="5"/>
+    <circle cx="200" cy="22" r="7" fill="#FFD650" stroke="#8A6F5C" stroke-width="4"/>
+    <circle cx="150" cy="60" r="4.5" fill="#fff" stroke="#8A6F5C" stroke-width="3"/>
+    <circle cx="200" cy="48" r="4.5" fill="#fff" stroke="#8A6F5C" stroke-width="3"/>
+    <circle cx="250" cy="60" r="4.5" fill="#fff" stroke="#8A6F5C" stroke-width="3"/>
+    <line x1="140" y1="90" x2="140" y2="160" stroke="#8A6F5C" stroke-width="5"/>
+    <line x1="200" y1="94" x2="200" y2="166" stroke="#8A6F5C" stroke-width="5"/>
+    <line x1="260" y1="90" x2="260" y2="160" stroke="#8A6F5C" stroke-width="5"/>
+    <g stroke="#8A6F5C" stroke-width="4.5" stroke-linejoin="round" stroke-linecap="round">
+      <path d="M120 120 q10 -12 28 -8 q14 3 12 16 q-2 12 -16 12 q-16 1 -24 -20 Z" fill="#F6C3D0"/>
+      <path d="M182 128 q10 -12 28 -8 q14 3 12 16 q-2 12 -16 12 q-16 1 -24 -20 Z" fill="#FFF9EC"/>
+      <path d="M242 120 q10 -12 28 -8 q14 3 12 16 q-2 12 -16 12 q-16 1 -24 -20 Z" fill="#F9C6D3"/>
+    </g>
+    <path d="M110 168 Q200 178 290 168" fill="none" stroke="#8A6F5C" stroke-width="5" stroke-linecap="round"/>
+  </svg>`,
+  coaster:`
+  <svg viewBox="0 0 400 190" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <ellipse cx="200" cy="182" rx="180" ry="10" fill="#BDE8C9"/>
+    <path d="M30 168 Q90 40 150 108 Q200 164 250 96 Q300 34 370 132" fill="none" stroke="#8A6F5C" stroke-width="6" stroke-linecap="round"/>
+    <path d="M30 168 Q90 40 150 108 Q200 164 250 96 Q300 34 370 132" fill="none" stroke="#FFD650" stroke-width="2.5" stroke-dasharray="2 10" stroke-linecap="round"/>
+    <g stroke="#8A6F5C" stroke-width="4">
+      <line x1="90" y1="86" x2="90" y2="172"/><line x1="150" y1="110" x2="150" y2="172"/>
+      <line x1="250" y1="98" x2="250" y2="172"/><line x1="300" y1="64" x2="300" y2="172"/>
+    </g>
+    <g transform="rotate(18 268 84)">
+      <rect x="240" y="70" width="56" height="28" rx="10" fill="#F27992" stroke="#8A6F5C" stroke-width="5"/>
+      <circle cx="256" cy="66" r="9" fill="#FFDFB0" stroke="#8A6F5C" stroke-width="4"/>
+      <circle cx="280" cy="66" r="9" fill="#FFDFB0" stroke="#8A6F5C" stroke-width="4"/>
+      <path d="M252 65 q2 2 4 0 M276 65 q2 2 4 0" stroke="#4A4453" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <path d="M253 69 q3 3 6 0 M277 69 q3 3 6 0" stroke="#4A4453" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <path d="M244 56 l4 -8 M292 56 l-4 -8" stroke="#8A6F5C" stroke-width="3" stroke-linecap="round"/>
+    </g>
+    <path d="M60 150 l0 -8 M64 150 l0 -12 M68 150 l0 -6" stroke="#7BB88C" stroke-width="4" stroke-linecap="round"/>
+    <path d="M340 154 l0 -8 M344 154 l0 -12 M348 154 l0 -6" stroke="#7BB88C" stroke-width="4" stroke-linecap="round"/>
+  </svg>`,
+  ferris:`
+  <svg viewBox="0 0 400 190" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <ellipse cx="200" cy="182" rx="180" ry="10" fill="#BDE8C9"/>
+    <circle cx="200" cy="88" r="66" fill="none" stroke="#8A6F5C" stroke-width="5"/>
+    <circle cx="200" cy="88" r="46" fill="none" stroke="#FFD650" stroke-width="3" stroke-dasharray="3 10" stroke-linecap="round"/>
+    <g stroke="#8A6F5C" stroke-width="4">
+      <line x1="200" y1="88" x2="200" y2="22"/><line x1="200" y1="88" x2="266" y2="88"/>
+      <line x1="200" y1="88" x2="200" y2="154"/><line x1="200" y1="88" x2="134" y2="88"/>
+      <line x1="200" y1="88" x2="247" y2="41"/><line x1="200" y1="88" x2="247" y2="135"/>
+      <line x1="200" y1="88" x2="153" y2="41"/><line x1="200" y1="88" x2="153" y2="135"/>
+    </g>
+    <circle cx="200" cy="88" r="10" fill="#F27992" stroke="#8A6F5C" stroke-width="4"/>
+    <g stroke="#8A6F5C" stroke-width="4">
+      <rect x="188" y="14" width="24" height="19" rx="7" fill="#F6C3D0"/>
+      <rect x="258" y="80" width="24" height="19" rx="7" fill="#F9C6D3"/>
+      <rect x="188" y="148" width="24" height="19" rx="7" fill="#FFD650"/>
+      <rect x="118" y="80" width="24" height="19" rx="7" fill="#BDE8C9"/>
+      <rect x="238" y="33" width="24" height="19" rx="7" fill="#FFD650"/>
+      <rect x="238" y="128" width="24" height="19" rx="7" fill="#F6C3D0"/>
+      <rect x="138" y="33" width="24" height="19" rx="7" fill="#F9C6D3"/>
+      <rect x="138" y="128" width="24" height="19" rx="7" fill="#fff"/>
+    </g>
+    <path d="M178 176 L200 150 L222 176" fill="none" stroke="#8A6F5C" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>`,
+  shuttle:`
+  <svg viewBox="0 0 400 190" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <ellipse cx="200" cy="182" rx="180" ry="10" fill="#BDE8C9"/>
+    <path d="M20 168 L380 168" stroke="#8A6F5C" stroke-width="5" stroke-linecap="round" stroke-dasharray="18 14"/>
+    <rect x="88" y="72" width="224" height="84" rx="24" fill="#FFD650" stroke="#8A6F5C" stroke-width="5"/>
+    <rect x="88" y="72" width="224" height="30" rx="15" fill="#F27992" stroke="#8A6F5C" stroke-width="5"/>
+    <text x="200" y="94" text-anchor="middle" font-family="'Noto Sans TC',sans-serif" font-weight="900" font-size="15" fill="#fff">遊 園 車</text>
+    <g stroke="#8A6F5C" stroke-width="4">
+      <rect x="106" y="112" width="34" height="26" rx="8" fill="#F6C3D0"/>
+      <rect x="152" y="112" width="34" height="26" rx="8" fill="#F6C3D0"/>
+      <rect x="198" y="112" width="34" height="26" rx="8" fill="#F6C3D0"/>
+      <rect x="258" y="108" width="40" height="48" rx="10" fill="#FBE2E9"/>
+    </g>
+    <circle cx="126" cy="124" r="7" fill="#FFDFB0" stroke="#8A6F5C" stroke-width="3"/>
+    <circle cx="172" cy="124" r="7" fill="#FFDFB0" stroke="#8A6F5C" stroke-width="3"/>
+    <path d="M123 124 q3 3 6 0 M169 124 q3 3 6 0" stroke="#4A4453" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <circle cx="132" cy="160" r="15" fill="#4A4453" stroke="#8A6F5C" stroke-width="5"/>
+    <circle cx="132" cy="160" r="5" fill="#FFF9EC"/>
+    <circle cx="268" cy="160" r="15" fill="#4A4453" stroke="#8A6F5C" stroke-width="5"/>
+    <circle cx="268" cy="160" r="5" fill="#FFF9EC"/>
+    <path d="M330 140 q4 -18 18 -18 M52 148 q-2 -14 12 -18" stroke="#7BB88C" stroke-width="5" fill="none" stroke-linecap="round"/>
+  </svg>`,
+};
+
+/* =====================================================================
+   ⚙️  遊戲邏輯 — 以下不需要修改
+   ===================================================================== */
+const state = { earned:{} };
+const $ = s => document.querySelector(s);
+
+/* ---- 進度保存(安全防護:環境不支援時自動退回一次性遊玩)---- */
+const STORAGE_KEY = "nccu-funpark-progress-zh";
+function saveProgress(){
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state.earned)); }catch(e){}
+}
+function loadProgress(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw) state.earned = JSON.parse(raw) || {};
+  }catch(e){ state.earned = {}; }
+}
+function resetProgress(){
+  try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
+  location.reload();
+}
+loadProgress();
+
+document.getElementById("feedbackLink").href = FEEDBACK_FORM_URL;
+
+/* ---- 建立地圖卡片 ---- */
+const mapList = $("#mapList");
+ZONES.forEach((z,i)=>{
+  const card = document.createElement("button");
+  card.className = "attraction";
+  card.id = "card-"+z.id;
+  card.setAttribute("aria-label", z.name);
+  card.innerHTML = `
+    <span class="stamp-mark">✓ 貼紙到手!</span>
+    <span class="art">${ART[z.art]}</span>
+    <span class="meta">
+      <span class="txt"><h2>${z.emoji} ${z.name}</h2><span class="tag">${z.tag}</span></span>
+      <span class="go">入場 →</span>
+    </span>`;
+  card.addEventListener("click",()=>openZone(i));
+  mapList.appendChild(card);
+});
+
+/* ---- 還原已保存的進度 ---- */
+(function restoreUI(){
+  let count = 0;
+  ZONES.forEach(z=>{
+    if(state.earned[z.id]){
+      count++;
+      const slot = document.querySelector(`.sticker-slot[data-slot="${z.id}"]`);
+      if(slot) slot.classList.add("earned");
+      const card = document.getElementById("card-"+z.id);
+      if(card) card.classList.add("done");
+    }
+  });
+  if(count===ZONES.length) $("#downloadBtn").disabled = false;
+})();
+
+/* ---- 關卡畫面 ---- */
+function openZone(i){
+  const z = ZONES[i];
+  const solved = !!state.earned[z.id];
+  const spotsHTML = z.spots.map((s,si)=>`
+    <div class="spot" data-spot="${si}">
+      <button class="spot-head" aria-expanded="false">
+        <span class="emoji">${s.emoji}</span>
+        <span class="who"><b>${s.who}</b><span>${s.role}</span></span>
+        <span class="chev">›</span>
+      </button>
+      <div class="spot-body">
+        ${s.body}
+        ${(s.links||[]).map(l=>`<a class="link-out ${l.blue?'blue':''}" href="${l.url}" target="_blank" rel="noopener">${l.label} ↗</a>`).join("")}
+      </div>
+    </div>`).join("");
+
+  const optsHTML = z.quiz.opts.map((o,oi)=>
+    `<button class="opt" data-oi="${oi}">${o}</button>`).join("");
+
+  $("#zoneContent").innerHTML = `
+    <div class="zone-hero">
+      <div class="art">${ART[z.art]}</div>
+      <div class="intro">
+        <h2>${z.emoji} ${z.name}</h2>
+        <p>${z.intro}</p>
+      </div>
+    </div>
+    <div class="spots">${spotsHTML}</div>
+    <div class="quiz ${solved?'solved':''}" id="quizBox">
+      <span class="q-label">⭐ 集章挑戰</span>
+      <h3>${z.quiz.q}</h3>
+      <div class="opts">${optsHTML}</div>
+      <p class="result ${solved?'show':''}" id="quizResult">${solved?'✅ 這關的貼紙已經到手,讚!':''}</p>
+    </div>`;
+
+  /* 手風琴展開 */
+  document.querySelectorAll(".spot-head").forEach(h=>{
+    h.addEventListener("click",()=>{
+      const sp = h.parentElement;
+      sp.classList.toggle("open");
+      h.setAttribute("aria-expanded", sp.classList.contains("open"));
+    });
+  });
+
+  /* 集章挑戰 */
+  document.querySelectorAll("#quizBox .opt").forEach(btn=>{
+    if(solved && +btn.dataset.oi===z.quiz.correct) btn.classList.add("correct");
+    btn.addEventListener("click",()=>{
+      const oi = +btn.dataset.oi;
+      const res = $("#quizResult");
+      if(oi===z.quiz.correct){
+        btn.classList.add("correct");
+        $("#quizBox").classList.add("solved");
+        res.textContent = "✅ " + z.quiz.praise;
+        res.classList.add("show");
+        earnSticker(z);
+      }else{
+        btn.classList.remove("wrong"); void btn.offsetWidth;
+        btn.classList.add("wrong");
+        res.textContent = "🙈 差一點——答案就藏在這個設施裡,再找找看!";
+        res.classList.add("show");
+      }
+    });
+  });
+
+  $("#mapScreen").classList.add("hidden");
+  $("#zoneScreen").classList.add("active");
+  window.scrollTo({top:0,behavior:"instant"});
+}
+
+function backToMap(){
+  $("#zoneScreen").classList.remove("active");
+  $("#mapScreen").classList.remove("hidden");
+  window.scrollTo({top:0,behavior:"instant"});
+}
+$("#backBtn").addEventListener("click",backToMap);
+$("#backBtn2").addEventListener("click",backToMap);
+$("#resetBtn").addEventListener("click",()=>{
+  if(confirm("要清除所有貼紙、重新開始探險嗎?")) resetProgress();
+});
+
+/* ---- 集章 ---- */
+function earnSticker(z){
+  if(state.earned[z.id]) return;
+  state.earned[z.id] = true;
+  saveProgress();
+  const slot = document.querySelector(`.sticker-slot[data-slot="${z.id}"]`);
+  slot.classList.add("earned","pop");
+  document.getElementById("card-"+z.id).classList.add("done");
+  const count = Object.keys(state.earned).length;
+  if(count===ZONES.length){
+    $("#downloadBtn").disabled = false;
+    showOverlay("🏆","全部集滿!","你已經探索完整座遊樂園!回到地圖下載你的紀念門票——也別忘了留下回饋喔!");
+  }else{
+    showOverlay("🎉","獲得貼紙!",`${z.emoji} ${z.name}貼紙入手——已收集 ${count}/5 張,繼續探險吧!`);
+  }
+}
+
+/* ---- 慶祝視窗 ---- */
+function showOverlay(emoji,title,text){
+  $("#ovEmoji").textContent = emoji;
+  $("#ovTitle").textContent = title;
+  $("#ovText").textContent = text;
+  $("#overlay").classList.add("show");
+}
+$("#ovBtn").addEventListener("click",()=>$("#overlay").classList.remove("show"));
+
+/* ---- 紀念門票(canvas 產生 PNG)---- */
+$("#downloadBtn").addEventListener("click",()=>{
+  const c = document.getElementById("ticketCanvas");
+  const ctx = c.getContext("2d");
+  const W=c.width, H=c.height;
+  const TC = "'Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif";
+
+  // 背景
+  ctx.fillStyle="#FBE2E9"; ctx.fillRect(0,0,W,H);
+  // 票券本體
+  roundRect(ctx,60,60,W-120,H-120,48);
+  ctx.fillStyle="#FFF9EC"; ctx.fill();
+  ctx.lineWidth=10; ctx.strokeStyle="#8A6F5C"; ctx.stroke();
+  // 撕票虛線
+  ctx.setLineDash([2,22]); ctx.lineWidth=6; ctx.strokeStyle="#C9BBA8";
+  ctx.beginPath(); ctx.moveTo(W-320,80); ctx.lineTo(W-320,H-80); ctx.stroke();
+  ctx.setLineDash([]);
+  // 標題帶
+  roundRect(ctx,100,100,W-460,110,28);
+  ctx.fillStyle="#FFD650"; ctx.fill();
+  ctx.lineWidth=8; ctx.strokeStyle="#8A6F5C"; ctx.stroke();
+  ctx.fillStyle="#4A4453";
+  ctx.font="900 54px "+TC;
+  ctx.textAlign="left";
+  ctx.fillText("政大圖書館 夢幻遊樂園",130,175);
+  // 副標
+  ctx.font="900 36px "+TC;
+  ctx.fillStyle="#E05C7A";
+  ctx.fillText("★ 遊樂園探險完成證明 ★",110,282);
+  ctx.font="500 28px "+TC;
+  ctx.fillStyle="#4A4453";
+  ctx.fillText("這位探險家走遍了全部 5 個遊樂設施,",110,342);
+  ctx.fillText("並收集到園區裡的每一張貼紙!",110,384);
+  // 日期
+  const d = new Date();
+  ctx.font="700 26px "+TC;
+  ctx.fillStyle="#7A7385";
+  ctx.fillText("入園日期:"+d.getFullYear()+" 年 "+(d.getMonth()+1)+" 月 "+d.getDate()+" 日",110,452);
+  // 貼紙印章
+  const emojis = ["🎟️","🎠","🎢","🎡","🚌"];
+  emojis.forEach((e,i)=>{
+    const x=140+i*140, y=530;
+    ctx.beginPath(); ctx.arc(x,y,52,0,Math.PI*2);
+    ctx.fillStyle="#FDE8EE"; ctx.fill();
+    ctx.lineWidth=7; ctx.strokeStyle="#F27992"; ctx.stroke();
+    ctx.font="52px serif"; ctx.textAlign="center"; ctx.textBaseline="middle";
+    ctx.fillText(e,x,y+4);
+    ctx.textBaseline="alphabetic";
+  });
+  ctx.textAlign="left";
+  // 票根側邊
+  ctx.save();
+  ctx.translate(W-190,H/2); ctx.rotate(-Math.PI/2);
+  ctx.font="900 42px "+TC;
+  ctx.fillStyle="#8A6F5C"; ctx.textAlign="center";
+  ctx.fillText("入場券 ★ 政大圖書館",0,0);
+  ctx.restore();
+  // 票根大戳章
+  ctx.save();
+  ctx.translate(W-190,H-190); ctx.rotate(0.15);
+  ctx.beginPath(); ctx.arc(0,0,70,0,Math.PI*2);
+  ctx.lineWidth=8; ctx.strokeStyle="#E05C7A"; ctx.stroke();
+  ctx.beginPath(); ctx.arc(0,0,56,0,Math.PI*2);
+  ctx.lineWidth=3; ctx.strokeStyle="#E05C7A"; ctx.stroke();
+  ctx.fillStyle="#E05C7A"; ctx.textAlign="center";
+  ctx.font="900 30px "+TC;
+  ctx.fillText("通關!",0,-4);
+  ctx.font="700 18px "+TC;
+  ctx.fillText("政大圖書館",0,26);
+  ctx.restore();
+
+  const dataURL = c.toDataURL("image/png");
+  document.getElementById("ticketImg").src = dataURL;
+  document.getElementById("ticketSave").href = dataURL;
+  document.getElementById("ticketOverlay").classList.add("show");
+});
+document.getElementById("ticketClose").addEventListener("click",()=>{
+  document.getElementById("ticketOverlay").classList.remove("show");
+});
+
+function roundRect(ctx,x,y,w,h,r){
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);
+  ctx.arcTo(x+w,y,x+w,y+h,r);
+  ctx.arcTo(x+w,y+h,x,y+h,r);
+  ctx.arcTo(x,y+h,x,y,r);
+  ctx.arcTo(x,y,x+w,y,r);
+  ctx.closePath();
+}
+</script>
+</body>
+</html>
