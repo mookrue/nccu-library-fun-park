@@ -48,6 +48,15 @@
   }
   .screen{position:relative;z-index:1;}
 
+  /* ---------- language toggle ---------- */
+  .lang-toggle{
+    position:absolute;top:14px;right:0;z-index:10;
+    background:var(--cream);border:2.5px solid var(--line);border-radius:999px;
+    font-family:'Baloo 2','Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif;
+    font-weight:800;font-size:.85rem;
+    padding:6px 14px;box-shadow:var(--shadow);text-decoration:none;
+  }
+
   /* ---------- header ---------- */
   header.park-header{padding:26px 4px 8px;text-align:center;}
   .park-arch{width:min(100%,420px);margin:0 auto;display:block;}
@@ -257,6 +266,7 @@
 </div>
 
 <div class="app">
+  <a class="lang-toggle" href="https://mookrue.github.io/nccu-library-fun-park/zh.html">中文</a>
 
   <!-- ==================== MAP SCREEN ==================== -->
   <div class="screen map-screen" id="mapScreen">
@@ -481,7 +491,7 @@ const ZONES = [
       { emoji:"🎬", who:"Cabin 4 · Audio-Visual Area", role:"Watch & listen",
         body:`<p>Enjoy films and media from the library collection in a comfy viewing area.</p>` },
       { emoji:"🎙️", who:"Cabin 5 · Media Production Studio", role:"Record & produce",
-        body:`<p>A studio for recording and producing your own audio and video projects.</p>` },
+        body:`<p>A studio for recording and producing your own video projects.</p>` },
     ],
     quiz:{
       q:"You want to reserve a discussion room for your group project. Where do you go?",
@@ -505,7 +515,8 @@ const ZONES = [
     spots:[
       { emoji:"👮", who:"Gate Keeper Poko", role:"Where the books live",
         body:`<p>📍 <b>Western-language books</b> are mainly at the <b>main library</b> — other branches have some too, just fewer.</p>
-              <p>📍 <b>Films & media</b> are at the <b>Dah Hsien Seetoo Library</b>.</p>`,
+              <p>📍 <b>Films & media</b> are at the <b>Dah Hsien Seetoo Library</b>.</p>
+              <p>⚠️ Heads up: some books are for <b>in-library reading only</b> and can't be checked out!</p>`,
         links:[
           {label:"📖 Borrowing rules (EN)", url:LINKS.borrowing},
           {label:"🏛️ Meet all our libraries", url:LINKS.branches, blue:true}
