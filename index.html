@@ -186,8 +186,18 @@
   .spot.open .chev{transform:rotate(90deg);}
   .spot-body{display:none;padding:0 16px 14px;font-size:.94rem;}
   .spot.open .spot-body{display:block;}
+  .spot-body.show{display:block;}
   .spot-body p+p{margin-top:8px;}
   .spot-body .hint{background:#FFF3C4;border-radius:12px;padding:10px 12px;margin-top:8px;font-size:.9rem;}
+  /* core (always-visible) cards */
+  .spot.open-card .spot-head.static{cursor:default;padding-bottom:6px;}
+  .spot.open-card .spot-body.show{padding-top:2px;}
+  /* folded supplement cards get a soft tint + "more" affordance */
+  .spot.fold{background:#FBF4E8;border-style:dashed;}
+  .spot.fold .spot-head{cursor:pointer;}
+  .spot.fold .spot-head .emoji{background:#F0E6D2;}
+  .spot.fold .chev::before{content:"＋ ";font-weight:800;}
+  .spot.fold.open .chev::before{content:"− ";}
   .link-out{
     display:inline-block;margin-top:10px;margin-right:8px;
     background:var(--sun);border:2.5px solid var(--line);border-radius:999px;
@@ -360,6 +370,9 @@ const LINKS = {
   news:       "https://nccu.primo.exlibrisgroup.com/discovery/dbsearch?query=contains,dbcategory,&tab=jsearch_slot&sortby=title&vid=886NCCU_INST:886NCCU_INST&lang=en&offset=0&databases=category,C%E2%94%80C%E6%96%B0%E8%81%9E%E3%80%81%E5%A0%B1%E7%B4%99",
   guide:      "https://sites.google.com/view/nccugraduate/library101#h.qenb4kcwv86f",
   quickstart: "https://sites.google.com/view/nccugraduate/library101",
+  dbpage:     "https://nccu.primo.exlibrisgroup.com/discovery/dbsearch?vid=886NCCU_INST:886NCCU_INST&lang=en",
+  endnote:    "https://nccu.primo.exlibrisgroup.com/permalink/886NCCU_INST/1sca1pf/alma991011820559705721",
+  writefull:  "https://nccu.primo.exlibrisgroup.com/permalink/886NCCU_INST/1sca1pf/alma991021545287305721",
   vpn:        "https://net.nccu.edu.tw/sslvpn/index-en.html",
   turnitin:   "https://www.lib.nccu.edu.tw/p/406-1000-4674,r105.php?Lang=en",
   thesis:     "https://thesis.lib.nccu.edu.tw/",
@@ -371,6 +384,7 @@ const LINKS = {
   specialCol: "https://da.lib.nccu.edu.tw/#",
   archives:   "https://archive.lib.nccu.edu.tw/?Lang=en",
   branches:   "https://www.lib.nccu.edu.tw/p/404-1000-321.php?Lang=en",
+  searchguide:"https://www.lib.nccu.edu.tw/p/404-1000-479.php?Lang=en#Search",
 };
 
 const ZONES = [
@@ -378,14 +392,14 @@ const ZONES = [
   {
     id:"gate", emoji:"🎟️", name:"Entrance Gate",
     tag:"Get your library ticket first!",
-    intro:"Every fun park needs a ticket — and so does the library! Two friendly ticket clerks are here to get you in.",
+    intro:"Every fun park needs a ticket — and so does the library! Here's how to get in.",
     art:"gate",
     spots:[
-      { emoji:"🧑‍💼", who:"Ticket Clerk Momo", role:"Sign in to enter",
-        body:`<p>Before using library services, please sign the <b>Statement of Patron's Privileges</b> on the library website. It only takes a minute!</p>`,
+      { emoji:"✍️", who:"Step 1 · Sign in", role:"Activate your account",
+        body:`<p>Before using library services, sign the <b>Statement of Patron's Privileges</b> on the library website. It only takes a minute!</p>`,
         links:[{label:"✍️ Sign the statement", url:LINKS.statement}] },
-      { emoji:"👩‍💼", who:"Ticket Clerk Hana", role:"Your account & password",
-        body:`<p>Once you've signed, you can log in to <b>reserve books</b> and <b>use e-resources</b>!</p>
+      { emoji:"🔑", who:"Step 2 · Log in", role:"Your account & password",
+        body:`<p>Once signed, log in to <b>reserve books</b> and <b>use e-resources</b>.</p>
               <div class="hint">🔑 <b>Account</b> = your student ID<br>🔑 <b>Password</b> = <b>nccu</b> + your birthday (MMDD)<br>e.g. birthday May 20 → <b>nccu0520</b></div>` },
     ],
     quiz:{
@@ -403,7 +417,7 @@ const ZONES = [
     intro:"Each horse carries a different e-resource: trusted journal articles, the latest news, e-books you can borrow online — many even come with AI features!",
     art:"carousel",
     spots:[
-      { emoji:"🎠", who:"The Carousel Horses", role:"Pick a ride — 10 resources",
+      { emoji:"🎠", who:"The Carousel Horses", role:"10 databases + e-books & news",
         body:`<div class="horse-grid">
           <div class="horse"><div class="h-name">🐴 Scopus</div><div class="h-desc">Find trusted journal articles across all fields</div></div>
           <div class="horse"><div class="h-name">🐴 Web of Science (SSCI)</div><div class="h-desc">Key journal index for the social sciences</div></div>
@@ -415,13 +429,14 @@ const ZONES = [
           <div class="horse"><div class="h-name">🐴 EBSCOhost</div><div class="h-desc">Multidisciplinary databases with full text</div></div>
           <div class="horse"><div class="h-name">🦄 E-books</div><div class="h-desc">Borrow thousands of books online — <a href="${LINKS.ebooks}" target="_blank" rel="noopener">hop on →</a></div></div>
           <div class="horse"><div class="h-name">🦄 News</div><div class="h-desc">Stay on top of what's happening — <a href="${LINKS.news}" target="_blank" rel="noopener">hop on →</a></div></div>
-        </div>` },
-      { emoji:"💡", who:"The Glowing Roof", role:"Full resource guide",
-        body:`<p>Want the complete tour of what's on this ride? The roof lights spell out our <b>Library Resource Guide</b>.</p>`,
-        links:[{label:"💡 Open the resource guide", url:LINKS.guide}] },
-      { emoji:"👮", who:"Gate Keeper Kuma", role:"Riding from off campus?",
-        body:`<p>Using e-resources <b>off campus</b> (like from your dorm or a café)? Remember to <b>log in through the library website</b>, or set up the <b>NCCU VPN</b> first — otherwise the horses won't move!</p>`,
+        </div>`,
+        links:[{label:"🎫 Browse all databases", url:LINKS.dbpage}] },
+      { emoji:"👮", who:"Riding from off campus?", role:"Read this before you go",
+        body:`<p>Off campus (dorm, café…)? <b>Log in through the library website</b>, or set up the <b>NCCU VPN</b> first — otherwise the horses won't move!</p>`,
         links:[{label:"🔐 Set up NCCU VPN", url:LINKS.vpn}] },
+      { fold:true, emoji:"💡", who:"Want to go deeper?", role:"Learning videos & AI guide",
+        body:`<p>The roof lights point to our full <b>Library Resource Guide</b> — tutorials and tips for getting the most out of every database.</p>`,
+        links:[{label:"💡 Open the resource guide", url:LINKS.guide}] },
     ],
     quiz:{
       q:"You're off campus and a database won't let you in. What should you do?",
@@ -440,24 +455,24 @@ const ZONES = [
   {
     id:"coaster", emoji:"🎢", name:"Roller Coaster",
     tag:"The thesis-writing thrill ride",
-    intro:"Grad students, buckle up! Thesis writing has its ups and downs — but the library gives you tools for every loop, and we believe you'll conquer them all.",
+    intro:"Grad students, buckle up! Thesis writing has its ups and downs — the library has a tool for every loop, and we believe you'll conquer them all.",
     art:"coaster",
     spots:[
-      { emoji:"🗺️", who:"Gate Keeper Toto", role:"Your ride map",
-        body:`<p>First time on this coaster? Grab the guide: <b>Explore What NCCU Libraries Can Do for You — A Quick Start Guide</b>.</p>`,
-        links:[{label:"🗺️ Open the Quick Start Guide", url:LINKS.quickstart}] },
-      { emoji:"🚃", who:"Car 1 · EndNote", role:"Reference manager",
-        body:`<p><b>EndNote</b> keeps your references organized and generates correctly formatted citations in seconds. Your future self will thank you!</p>`,
-        links:[{label:"📚 Learn more in the guide", url:LINKS.quickstart}] },
-      { emoji:"🚃", who:"Car 2 · Writefull", role:"English editing helper",
+      { emoji:"🚃", who:"EndNote", role:"Manage your references",
+        body:`<p><b>EndNote</b> organizes your references and generates correctly formatted citations in seconds. Your future self will thank you!</p>`,
+        links:[{label:"📚 Get EndNote", url:LINKS.endnote}] },
+      { emoji:"🚃", who:"Writefull", role:"Polish your English",
         body:`<p><b>Writefull</b> helps polish your academic English — grammar, phrasing, and style suggestions as you write.</p>`,
-        links:[{label:"✏️ Learn more in the guide", url:LINKS.quickstart}] },
-      { emoji:"🚃", who:"Car 3 · Turnitin", role:"Originality check",
+        links:[{label:"✏️ Get Writefull", url:LINKS.writefull}] },
+      { emoji:"🚃", who:"Turnitin", role:"Originality check",
         body:`<p>Before graduation, your thesis goes through <b>Turnitin</b> for an originality check.</p>`,
         links:[{label:"🔍 Turnitin guide (EN)", url:LINKS.turnitin}] },
-      { emoji:"🏁", who:"Final Car · Thesis Upload", role:"The last loop!",
+      { emoji:"🏁", who:"Thesis Upload", role:"The final loop!",
         body:`<p>The grand finale: upload your finished thesis to the <b>NCCU thesis system</b>. Then throw your hands up — you made it! 🙌</p>`,
         links:[{label:"🎓 Thesis upload system", url:LINKS.thesis}] },
+      { fold:true, emoji:"🗺️", who:"New to all this?", role:"Quick Start Guide",
+        body:`<p>First time on this coaster? The <b>Quick Start Guide</b> walks you through everything NCCU Libraries can do for your thesis.</p>`,
+        links:[{label:"🗺️ Open the Quick Start Guide", url:LINKS.quickstart}] },
     ],
     quiz:{
       q:"Before graduating, which tool checks your thesis for originality?",
@@ -471,27 +486,26 @@ const ZONES = [
   {
     id:"ferris", emoji:"🎡", name:"Ferris Wheel",
     tag:"So many spaces to enjoy!",
-    intro:"Did you know NCCU has many library spaces you can use? Each cabin on this wheel shows you a different one — hop in and take a look around!",
+    intro:"Did you know NCCU has many library spaces you can use? Book online first, then hop into any cabin below to see what's inside!",
     art:"ferris",
     spots:[
-      { emoji:"🛎️", who:"Attendant Riri", role:"How to book a cabin",
-        body:`<p>Discussion rooms and other bookable spaces are reserved through the <b>online room booking system</b>. Reserve first, then enjoy!</p>
-              <p>You can also explore all spaces at both libraries:</p>`,
+      { emoji:"🛎️", who:"Book a space first", role:"Online room booking",
+        body:`<p>Discussion rooms and other bookable spaces are reserved through the <b>online room booking system</b>. Reserve first, then enjoy!</p>`,
+        links:[{label:"📅 Room booking system", url:LINKS.booking}] },
+      { emoji:"🎠", who:"The 5 cabins", role:"Spaces you can use",
+        body:`<div class="horse-grid">
+          <div class="horse"><div class="h-name">📖 Study Rooms</div><div class="h-desc">Quiet individual focus before exams & deadlines</div></div>
+          <div class="horse"><div class="h-name">🗣️ Discussion Rooms</div><div class="h-desc">Bookable rooms for group projects</div></div>
+          <div class="horse"><div class="h-name">🛠️ Maker Space</div><div class="h-desc">Hands-on space to bring ideas to life</div></div>
+          <div class="horse"><div class="h-name">🎬 Audio-Visual Area</div><div class="h-desc">Enjoy films & media from the collection</div></div>
+          <div class="horse"><div class="h-name">🎙️ Media Production Studio</div><div class="h-desc">Record & produce your own video projects</div></div>
+        </div>` },
+      { fold:true, emoji:"🏛️", who:"See every space", role:"Full space guides",
+        body:`<p>Explore all spaces at both libraries in detail:</p>`,
         links:[
-          {label:"📅 Room booking system", url:LINKS.booking},
-          {label:"🏛️ Dah Hsien Seetoo Library spaces", url:LINKS.spacesDH, blue:true},
+          {label:"🏛️ Dah Hsien Seetoo Library spaces", url:LINKS.spacesDH},
           {label:"🏛️ Main library spaces", url:LINKS.spacesMain, blue:true}
         ] },
-      { emoji:"📖", who:"Cabin 1 · Study Rooms", role:"Quiet focus time",
-        body:`<p>Quiet individual study spaces when you need deep focus before exams or deadlines.</p>` },
-      { emoji:"🗣️", who:"Cabin 2 · Discussion Rooms", role:"Group work",
-        body:`<p>Bookable rooms for group projects and study sessions — talk as much as you need!</p>` },
-      { emoji:"🛠️", who:"Cabin 3 · Maker Space", role:"Create things",
-        body:`<p>Hands-on space for making and creating — bring your ideas to life.</p>` },
-      { emoji:"🎬", who:"Cabin 4 · Audio-Visual Area", role:"Watch & listen",
-        body:`<p>Enjoy films and media from the library collection in a comfy viewing area.</p>` },
-      { emoji:"🎙️", who:"Cabin 5 · Media Production Studio", role:"Record & produce",
-        body:`<p>A studio for recording and producing your own video projects.</p>` },
     ],
     quiz:{
       q:"You want to reserve a discussion room for your group project. Where do you go?",
@@ -513,22 +527,23 @@ const ZONES = [
     intro:"Your NCCU library card doesn't just borrow NCCU books — it can also borrow from the UST alliance libraries: NYCU, NTHU, and NCU!",
     art:"shuttle",
     spots:[
-      { emoji:"👮", who:"Gate Keeper Poko", role:"Where the books live",
+      { emoji:"📚", who:"Where the books live", role:"Main library & Dah Hsien",
         body:`<p>📍 <b>Western-language books</b> are mainly at the <b>main library</b> — other branches have some too, just fewer.</p>
               <p>📍 <b>Films & media</b> are at the <b>Dah Hsien Seetoo Library</b>.</p>
               <p>⚠️ Heads up: some books are for <b>in-library reading only</b> and can't be checked out!</p>`,
         links:[
-          {label:"📖 Borrowing rules (EN)", url:LINKS.borrowing},
-          {label:"🏛️ Meet all our libraries", url:LINKS.branches, blue:true}
+          {label:"🔎 How to search the catalog", url:LINKS.searchguide},
+          {label:"📖 Borrowing rules (EN)", url:LINKS.borrowing, blue:true}
         ] },
-      { emoji:"🧢", who:"Shuttle Driver Bobo", role:"The UST route",
+      { emoji:"🧢", who:"The UST route", role:"Borrow from 3 more universities",
         body:`<p>This shuttle goes far! With your NCCU card you can borrow from the <b>University System of Taiwan</b> libraries: <b>NYCU, NTHU, and NCU</b>. Check the rules before you ride.</p>`,
         links:[{label:"🚌 UST borrowing rules", url:LINKS.ust}] },
-      { emoji:"🧳", who:"Passenger Yuyu", role:"Hidden treasures",
-        body:`<p>Psst — NCCU also has a <b>Special Collections Center</b> and <b>University Archives</b>. If you love rare materials and campus history, take a peek!</p>`,
+      { fold:true, emoji:"🧳", who:"Hidden treasures", role:"Special Collections & Archives",
+        body:`<p>NCCU also has a <b>Special Collections Center</b> and <b>University Archives</b>. If you love rare materials and campus history, take a peek!</p>`,
         links:[
           {label:"💎 Special Collections", url:LINKS.specialCol},
-          {label:"🏫 University Archives", url:LINKS.archives, blue:true}
+          {label:"🏫 University Archives", url:LINKS.archives, blue:true},
+          {label:"🏛️ Meet all our libraries", url:LINKS.branches, blue:true}
         ] },
     ],
     quiz:{
@@ -721,18 +736,39 @@ ZONES.forEach((z,i)=>{
 function openZone(i){
   const z = ZONES[i];
   const solved = !!state.earned[z.id];
-  const spotsHTML = z.spots.map((s,si)=>`
-    <div class="spot" data-spot="${si}">
-      <button class="spot-head" aria-expanded="false">
-        <span class="emoji">${s.emoji}</span>
-        <span class="who"><b>${s.who}</b><span>${s.role}</span></span>
-        <span class="chev">›</span>
-      </button>
-      <div class="spot-body">
-        ${s.body}
-        ${(s.links||[]).map(l=>`<a class="link-out ${l.blue?'blue':''}" href="${l.url}" target="_blank" rel="noopener">${l.label} ↗</a>`).join("")}
-      </div>
-    </div>`).join("");
+
+  const linkHTML = (links)=> (links||[]).map(l=>
+    `<a class="link-out ${l.blue?'blue':''}" href="${l.url}" target="_blank" rel="noopener">${l.label} ↗</a>`).join("");
+
+  const spotsHTML = z.spots.map((s,si)=>{
+    if(s.fold){
+      /* folded supplementary info — collapsed by default */
+      return `
+      <div class="spot fold" data-spot="${si}">
+        <button class="spot-head" aria-expanded="false">
+          <span class="emoji">${s.emoji}</span>
+          <span class="who"><b>${s.who}</b><span>${s.role}</span></span>
+          <span class="chev">›</span>
+        </button>
+        <div class="spot-body">
+          ${s.body}
+          ${linkHTML(s.links)}
+        </div>
+      </div>`;
+    }
+    /* core info — always visible, no clicking needed */
+    return `
+      <div class="spot open-card" data-spot="${si}">
+        <div class="spot-head static">
+          <span class="emoji">${s.emoji}</span>
+          <span class="who"><b>${s.who}</b><span>${s.role}</span></span>
+        </div>
+        <div class="spot-body show">
+          ${s.body}
+          ${linkHTML(s.links)}
+        </div>
+      </div>`;
+  }).join("");
 
   const optsHTML = z.quiz.opts.map((o,oi)=>
     `<button class="opt" data-oi="${oi}">${o}</button>`).join("");
@@ -753,8 +789,8 @@ function openZone(i){
       <p class="result ${solved?'show':''}" id="quizResult">${solved?'✅ Sticker already collected — nice!':''}</p>
     </div>`;
 
-  /* accordion */
-  document.querySelectorAll(".spot-head").forEach(h=>{
+  /* accordion — only folded supplements are clickable */
+  document.querySelectorAll(".spot.fold .spot-head").forEach(h=>{
     h.addEventListener("click",()=>{
       const sp = h.parentElement;
       sp.classList.toggle("open");
